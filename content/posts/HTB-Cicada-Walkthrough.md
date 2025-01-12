@@ -1,6 +1,6 @@
 ---
 title: "HacktheBox Walkthrough -Cicada"
-date: 2023-01-19T00:00:00+02:00
+date: 2025-01-10 T00:00:00+02:00
 draft: false
 author: "Anthony Tuff"
 tags: ["htb"]
@@ -52,3 +52,21 @@ Thanks to ippsec you can check manager box
 
 *Hulla!* We have successfully enumerated a list of possible usernames. With this list, we can now attempt AS-REP Roasting attack to check if any accounts allow pre-authentication and retrieve their hashed credentials.) this didn't yield out any results as shown in the screenshot below
 ##### RID Brute-forcing with CrackMapExec
+
+
+
+
+##### SMB Loot
+Since port 445 (SMB) was open, we can look for potential SMB shares. I fired up SMB Client and found two interesting shares:. 
+```
+- DEV: Custom share (possibly containing files).
+- HR: Custom share (Contains a file named Notice from HR.txt).
+```
+When looking for shares, I managed to enumerate the below shares. 
+- **ADMIN$**: Remote Admin share (usually for administrative tasks).
+- **C$**: Default administrative share for the C: drive.
+- **DEV**: Custom share (possibly containing files).
+- **HR**: Custom share (could be sensitive—requires exploration).
+- **IPC$**: Used for inter-process communication. 
+- **NETLOGON**: Scripts for logging in domain accounts.
+- **SYSVOL**: Policies and scripts for domain controllers
