@@ -45,4 +45,10 @@ Here is the table with the additional "Possible Attack Vectors" column:
 | _3268_ | _ldap_         | _Global Catalog Service (non-secure) – LDAP queries across multiple domains._                             | _Unauthorized Enumeration of Domains, Credential Harvesting, LDAP Injection_                         |
 | _3269_ | _ldaps_        | _Secure Global Catalog Service – Secure LDAP queries across multiple domains._                            | _Exploiting Weak Encryption, Misconfigured Secure Communication, Unauthorized Directory Enumeration_ |
 |        |                |                                                                                                           |                                                                                                      |
+
 Using Crackmapexec to check the hostname and Windows server type
+I also decided to test if we can perform **RID Brute-forcing** using crackmapexec to enumerate user accounts in the Domain Controller (DC). This method works by leveraging Relative Identifier (RID) values and exploits the ability to query Security Identifiers (SIDs) and resolve them to usernames, often without requiring authentication
+Thanks to ippsec you can check manager box
+
+*Hulla!* We have successfully enumerated a list of possible usernames. With this list, we can now attempt AS-REP Roasting attack to check if any accounts allow pre-authentication and retrieve their hashed credentials.) this didn't yield out any results as shown in the screenshot below
+##### RID Brute-forcing with CrackMapExec
