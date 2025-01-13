@@ -9,7 +9,7 @@ tags: ["about","info"]
 categories: ["pages"]
 ---
 
-![No one of consequence](/img/me-eiffel-paris.jpg)
+![No one of consequence](/img/sploittony.jpg)
 
 # About Me
 
