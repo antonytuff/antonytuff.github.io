@@ -1,17 +1,17 @@
 languageCode = "en"
 languageName = "English"
 weight = 1
-title = "neuro[log]"
+title = "Sploit Tony"
 
 [params]
 displayName = "EN"
 isoCode = "en"
 rtl = false
 dateFormat = "2 January 2006"
-logo = "neurolog-logo-small.png"
-description = "A neuro[log] about me."
+logo = "/img/sploittony.jng"
+description = "A anthony Tuff about me."
 
 [author]
 name = "Anthony Tuff"
 image = "neurolog-logo.png"
-links = [ { bluesky = "https://bsky.app/profile/natharari.bsky.social" }, { email = "inert.fingers-0m@icloud.com" }, { facebook = "https://www.facebook.com/natharari" }, { github = "https://github.com/natharari" }, { goodreads = "https://www.goodreads.com/user/show/28327884-nathaniel-harari" }, { instagram = "https://www.instagram.com/natharari/" }, { linkedin = "https://www.linkedin.com/in/nathaniel-harari/" }, { mastodon = "https://qoto.org/@natharari" } ]
+links = [  { email = "inert.fingers-0m@icloud.com" }, { facebook = "https://www.facebook.com/#" }, { github = "https://github.com/antonytuff" },{ instagram = "https://www.instagram.com/#" }, { linkedin = "https://www.linkedin.com//anthony-mabi-9bb18b174/" } ]
