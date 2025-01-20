@@ -8,10 +8,10 @@ displayName = "EN"
 isoCode = "en"
 rtl = false
 dateFormat = "2 January 2006"
-logo = "/img/sploittony.jng"
-description = "A anthony Tuff about me."
+logo = "/img/sploittony.jpg"
+description = "Anthony Tuff about me."
 
 [author]
 name = "Anthony Tuff"
-image = "neurolog-logo.png"
+image = "/img/sploittony.jpg"
 links = [  { email = "inert.fingers-0m@icloud.com" }, { facebook = "https://www.facebook.com/#" }, { github = "https://github.com/antonytuff" },{ instagram = "https://www.instagram.com/#" }, { linkedin = "https://www.linkedin.com//anthony-mabi-9bb18b174/" } ]
