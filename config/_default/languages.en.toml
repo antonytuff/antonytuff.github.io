@@ -8,7 +8,7 @@ displayName = "EN"
 isoCode = "en"
 rtl = false
 dateFormat = "2 January 2006"
-logo = "/img/sploittony.jpg"
+logo = "img/sploittony.jpg"
 description = "Anthony Tuff about me."
 
 [author]
