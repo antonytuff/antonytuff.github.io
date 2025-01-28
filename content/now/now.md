@@ -1,7 +1,7 @@
 ---
 title: "Now"
 url: "/now/"
-date: 2024-10-18T06:00:00+02:00
+date: 2025-01-28T06:00:00+02:00
 draft: false
 summary: now
 author: "Anthony Tuff"
@@ -9,8 +9,6 @@ tags: ["now","info"]
 categories: ["pages"]
 ---
 ## My now page {#my-now-page}
-
-(Credit [BSAG](https://bsag.omg.lol/now))
 
 ### What I'm thinking about {#what-i-m-thinking-about}
 - Finding a job ASAP.
