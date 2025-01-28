@@ -4,7 +4,7 @@ url: "/about/"
 date: 2024-03-11T06:00:00+02:00
 draft: false
 summary: about
-author: "Nathaniel Harari"
+author: "Anthony Tuff
 tags: ["about","info"]
 categories: ["pages"]
 ---
