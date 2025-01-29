@@ -4,7 +4,7 @@ date: 2025-01-20T09:00:00+02:00
 draft: false
 author: "Anthony Mabi"
 cover:
-image: img/manager.png   ins
+image: /img/manager.png   ins
 # alt: 'This is an alt tag for You Are Here picture'
 # caption: 'This is a caption for the image. You are not lost.'
 tags: ["hackthebox","windows","hackthebox-walktrough","htb","tech"]
@@ -31,7 +31,7 @@ Possible Attack Surface based the results: Enumerate databases, tables, and user
 | 1433                 | Microsoft SQL Server             | Indicates the presence of a database server.                       | Enumerate databases, tables, and users. Test for weak credentials and any RCE & password reuse                                                                                                 |
 See the below screenshot that demonstrates output results
 
-![[Pasted image 20250105133859.png]]
+/img/![[Pasted image 20250105133859.png]]
 
 ![[Pasted image 20250105134610.png]]
 #### Initial Observations
@@ -52,9 +52,9 @@ dirsearch -u http://10.10.11.236/ -w /usr/share/wordlists/seclists/Discovery/Web
 ```
 
 Attempting to identify,  any potential subdomains for the target domain.
-![[Pasted image 20250105140006.png]]
+/img/[[Pasted image 20250105140006.png]]
 Checking if there are nay hidden directories and files on the web service.
-![[Pasted image 20250105140220.png]]
+/img/![[Pasted image 20250105140220.png]]
 
 Default page of the website
 ![[Pasted image 20250105162710.png]]
