@@ -1,10 +1,10 @@
 ---
-title: "A Rant Kind of Day"
+title: "HackTheBox:Manager"
 date: 2025-01-20T09:00:00+02:00
 draft: false
 author: "Anthony Mabi"
-#cover:
-# image: img/youarehere.jpg
+cover:
+image: img/manager.png   ins
 # alt: 'This is an alt tag for You Are Here picture'
 # caption: 'This is a caption for the image. You are not lost.'
 tags: ["hackthebox","windows","hackthebox-walktrough","htb","tech"]
@@ -12,7 +12,9 @@ categories: ["hackthebox","windows","boot2root","tech"]
 ---
 
 # It's a day to rant
-![[Pasted image 20250106203414.png]] 
+![You Are Here Sign](/img/manager.png)
+
+
 Welcome to another boot2root machine! This time, we will dive into the Hack The Box machine, Manager. I must say, this box was an enjoyable challenge and provided valuable insights, especially in the area of privilege escalation-. I found the privilege escalation section  particularly fascinating due to its structured learning path and the extensive research it required. Actually windows privilege escalation is the area I have been polishing my skills on
 
 ### Information Gathering
