@@ -4,7 +4,7 @@ url: "/about/"
 date: 2025-01-28 T06:00:00+02:00
 draft: false
 summary: about
-author: "Anthony Tuff
+author: "Anthony Tuff"
 tags: ["about","info"]
 categories: ["pages"]
 ---
