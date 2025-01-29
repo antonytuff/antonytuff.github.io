@@ -31,9 +31,9 @@ Possible Attack Surface based the results: Enumerate databases, tables, and user
 | 1433                 | Microsoft SQL Server             | Indicates the presence of a database server.                       | Enumerate databases, tables, and users. Test for weak credentials and any RCE & password reuse                                                                                                 |
 See the below screenshot that demonstrates output results
 
-/img/![[Pasted image 20250105133859.png]]
+(/img/Pasted image 20250105133859.png)
 
-![[Pasted image 20250105134610.png]]
+![intial access](/img/Pasted image 20250105134610.png)
 #### Initial Observations
 From the Nmap results, we can deduce a significant amount of information that serves as a starting point for further exploration. Notably, the box appears to be a *Domain Controller (DC)*, which is considered a high-value target for attackers.
 **DC Name: Manager**
