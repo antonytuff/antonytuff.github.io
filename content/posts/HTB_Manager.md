@@ -17,8 +17,9 @@ categories: ["hackthebox","windows","boot2root","tech"]
 Welcome to another boot2root machine! This time, we will dive into the Hack The Box machine, Manager. I must say, this box was an enjoyable challenge and provided valuable insights, especially in the area of privilege escalation-. I found the privilege escalation section  particularly fascinating due to its structured learning path and the extensive research it required. Actually windows privilege escalation is the area I have been polishing my skills on
 
 ### Information Gathering
-Let’s kick things off with an Nmap scan to map out the **attack surface** and identify open ports & services running.  I like to keep things simple, and Nmap often has everything I need. Of course you can experiment
-Possible Attack Surface based the results: Enumerate databases, tables, and users. Test for weak credentials and web app vulnerabilities. See the below table that breaks down it all
+Let’s kick things off with an Nmap scan to map out the **attack surface** and identify open ports & services running.  I like to keep things simple, and Nmap often has everything I need. Of course you can experiment.
+
+Based on the results there are possible attack surface including database enumeration,users. Test for weak credentials and web app vulnerabilities. See the below table that breaks down it all by mapping out the attack surface.
 
 | **Port**             | **Service**                      | **Description**                                                    | **Potential Areas to Investigate**                                                                                                                                                             |
 | -------------------- | -------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -32,7 +33,7 @@ Possible Attack Surface based the results: Enumerate databases, tables, and user
 
 
 
-See the below screenshot that demonstrates output results
+See the below screenshot that demonstrates Nmap results
 ![](/img/Pasted%20image%2020250105133859.png)
 
 ![](/img/Pasted%20image%2020250105134610.png)
@@ -50,7 +51,7 @@ Before diving deeper, we can update our **/etc/hosts** file to resolve the domai
 ```bash
 echo "10.10.11.236 manager.htb" | sudo tee -a /etc/hosts
 ```
-I began by reviewing  the web service on port 80 to determine if it held any substantial information or hidden directories. Used  Gobuster & dirsearch for directory enumeration, I was unable to uncover anything significant. Additionally, I performed some quick virtual host (vhost) enumeration, but i didn't bare any results. By the look of things the website itself appeared static and did not reveal any obvious entry points. see the below commands
+I began by reviewing  the web service on port 80 to determine if it held any substantial information or hidden directories. Used  Gobuster & dirsearch for directory enumeration, I was unable to uncover anything significant. Additionally, I performed some quick virtual host (vhost) enumeration, but it didn't bare any results. By the look of things the website itself appeared static and did not reveal any obvious entry points. see the below commands
 ```bash
 
 gobuster dns -d manager.htb -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
@@ -61,7 +62,8 @@ dirsearch -u http://10.10.11.236/ -w /usr/share/wordlists/seclists/Discovery/Web
 Attempting to identify,  any potential subdomains for the target domain.
 ![](/img/Pasted%20imag%2020250105140006.png)
 Checking if there are nay hidden directories and files on the web service.
-/img/Pasted image 20250105140220.png
+
+![](/img/Pasted%20imag%2020250105140220.png)
 
 Default page of the website
 ![](/img/Pasted%20image%2020250105162710.png)
