@@ -16,8 +16,8 @@ categories: ["pages"]
 - Balancing between work and School.
 
 ### What I'm listening to {#what-i-m-listening-to}
-- Bulding HacktheBox Lab.
-- Bulding HacktheBox Lab.
+- World News.
+- Malware Analysis Tutorials.
 
 ### What I'm reading {#what-i-m-reading}
 - Certified Red Team Operator
@@ -28,10 +28,17 @@ categories: ["pages"]
 - I haven't decided.
 
 ### What I'm making {#what-i-m-making}
-- Nothing.
+- Automating Hackthebox Recon Stuff.
+- Developing Technical Content
+-
 
 ### What I'm enjoying {#what-i-m-enjoying}
-- Being free from La Drôme.
+- Animation and studd.
+
+### Goal of This Blog {#Goal-of-Blog}
+- Improving Technical Concepts.
+- Document my  Hacking Journey
+- Being like others- sounds good to have a blog
 
 
-#### Last Updated: 2025-01-28 {#last-updated-2024-10-18}
+#### Last Updated: 2025-01-28 {#last-updated-2025-02-13}
