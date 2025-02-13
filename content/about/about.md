@@ -15,5 +15,9 @@ Experienced Offensive security operator  & cyber security expert  with over 5 y
  
  Always keen to learn new things, security research, mentorship, and share the knowledge with others. 
  
- hacking my way to success =🥷🥷)
- Developer by day, Ninja by night.
+  
+Lover of all things malware analysis,Red Teaming, DFIR & Mobile Security
+
+
+ hacking my way to success Ninja by night. =🥷🥷)
+
