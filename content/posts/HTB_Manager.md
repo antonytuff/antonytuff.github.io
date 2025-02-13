@@ -51,7 +51,7 @@ Before diving deeper, we can update our **/etc/hosts** file to resolve the domai
 ```bash
 echo "10.10.11.236 manager.htb" | sudo tee -a /etc/hosts
 ```
-I began by reviewing  the web service on port 80 to determine if it held any substantial information or hidden directories. Used  Gobuster & dirsearch for directory enumeration, I was unable to uncover anything significant. Additionally, I performed some quick virtual host (vhost) enumeration, but it didn't bare any results. By the look of things the website itself appeared static and did not reveal any obvious entry points. see the below commands
+I began by reviewing  the web service on port 80 to determine if it held any substantial information or hidden directories. Used  Gobuster & dirsearch for directory enumeration, I was unable to uncover anything significant. Additionally, I performed some quick virtual host (vhost) enumeration, but it didn't bare any results. By the look of things the website itself appeared static and did not reveal any obvious entry points. see the below commands and results output.
 ```bash
 
 gobuster dns -d manager.htb -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -t 50
@@ -60,10 +60,10 @@ dirsearch -u http://10.10.11.236/ -w /usr/share/wordlists/seclists/Discovery/Web
 ```
 
 Attempting to identify,  any potential subdomains for the target domain.
-![](/img/Pasted%20imag%2020250105140006.png)
+![](/img/Pasted%20image%2020250105140006.png)
 Checking if there are nay hidden directories and files on the web service.
 
-![](/img/Pasted%20imag%2020250105140220.png)
+![](/img/Pasted%20image%2020250105140220.png)
 
 Default page of the website
 ![](/img/Pasted%20image%2020250105162710.png)
@@ -86,10 +86,16 @@ smbclient -L \\\\10.10.11.236\\ -N
     
 - **`-N`**: This option tells `smbclient` to not prompt for a password. It’s typically used when the remote server allows guest or anonymous access, or if you don't need authentication
 ```
-![](/img/Pasted%20imag%2020250105201547.png)
+
+![](/img/Pasted%20image%2020250105201547.png)
+
 ### Enumerating Users
 
-Next, I shifted focus to hunting for valid users. Kerberos is a critical service for authentication in Active Directory, and enumerating valid usernames can us in further attacks such as password spraying or brute-force attacks.
+Next, I shifted focus to hunting for valid users. Kerberos is a critical service for authentication in Active Directory, and enumerating valid usernames can help us to conduct further attacks such as password spraying or brute-force attacks.
+
+#### Enumeration Method 1: Using Kerbrute
+We can use kerbrute to enumerate users, see the below commands;
+
 ```c#
 ./kerbrute_linux_amd64 userenum -d manager.htb /usr/share/wordlists/seclists/Usernames/xato-net-10-million-usernames.txt --dc 10.10.11.236 -t 200
 
@@ -101,26 +107,28 @@ Next, I shifted focus to hunting for valid users. Kerberos is a critical service
 ```
 
 ![](/img/Pasted%20image%2020250105164951.png)
-At this point, I managed to get potential accounts that can be targeted for further exploitation. The next step is to leverage these findings to gain a foothold on the target.
+At this point, I managed to get potential accounts that can be used for further exploitation. The next step is to leverage these findings to gain a foothold on the target.
 
-### Enumeration Method 2: RID Cycling Attack
+#### Enumeration Method 2: RID Cycling Attack
 Another approach for user enumeration is through a RID cycling attack using crackmapexec/netexec as indicated in the screenshot below. RID cycling leverages null sessions and the SID-to-RID enumeration technique to enumerate user accounts.
 
-### RID cycling Attack
+##### RID cycling Attack
  RID cycling attack that attempts to enumerate user accounts through null sessions and the SID to RID enumeration. It's actually a good technique for enumerating user accounts in an environment with weak permissions or configurations. 
 **How it Works**
 - If we have access to the computer with a **null session** (an unauthenticated connection), which in our case we have, we can ask  the computer for information about users by guessing or cycling through these numbers (RIDs).
 - We start at a known point (e.g., 500 for administrator) and keep incrementing the numbers to check if users exist at those IDs.
 - When we hit a valid user, the system gives us the username  linked to that ID.
 - SID is like an ID card number, and part of that ID (called the RID) is the part that changes for each new user or group
+
+We can achieve this through crackmap.
 ```bash
 crackmapexec smb 10.10.11.236 -u 'guest' -p '' --rid-brute
 --rid-brute tells it to perform RID cycling to  enumerate user accounts.
 ```
 ![](/img/Pasted%20image%2020250105192243.png)
-With the findings from both Kerbrute and RID cycling, we now have a strong set of potential targets for further exploitation.
+With the findings from both Kerbrute and RID cycling, we now have a strong set of potential targets for further exploitation.We can go ahead and save the results in domain user file.
 
-Kerberos Pre-Authentication
+Checking Kerberos Pre-Authentication
 ![](/img/Pasted%20image%2020250105195020.png)
 ```
 cat domainusers.txt | tr '[:lower:]' '[:upper:]' > uppercase_users.txt
@@ -134,10 +142,10 @@ impacket-lookupsid anonymous@manager.htb -no-pass
 - no-pass: Indicates no password is provided.
 ```
 ![](/img/Pasted%20image%2020250105205121.png)
-What we can do 
+What now have a valid list of valid domain usernames the next steps is password spraying.
 
 
-Password Spraying
+#### Password Spraying
 ```
 crackmapexec smb 10.10.11.236 -u domainusers.txt -p lowercase_users.txt --no-brute --continue-on-success
 
