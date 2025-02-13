@@ -131,6 +131,9 @@ crackmapexec smb 10.10.11.236 -u 'guest' -p '' --rid-brute
 --rid-brute tells it to perform RID cycling to  enumerate user accounts.
 ```
 ![](/img/Pasted%20image%2020250105192243.png)
+
+
+
 With the findings from both Kerbrute and RID cycling, we now have a strong set of potential targets for further exploitation.We can go ahead and save the results in domain user file.
 
 Checking Kerberos Pre-Authentication
@@ -153,15 +156,18 @@ What now have a valid list of valid domain usernames the next steps is password 
 
 #### Password Spraying
 Since now we have concrete users, we can attempt to perform some password spraying with users name as their password. We can use crackmapexec against the list of users and set no brute forcing which means it will not try all combinations, while continuing on success as shown below.
+
 ```
 crackmapexec smb 10.10.11.236 -u domainusers.txt -p lowercase_users.txt --no-brute --continue-on-success
+```
 
 Found a  valid password using the identified username
 operator:operator
-```
-```
+
+
 Based on the results we I go a hit valid username and password, Let's see where this users can take us to...
 ![](/img/Pasted%20image%2020250105202018.png)
+
 
 ### Exploiting MSSQL
 Since we have an Open MSSQL database, we can begin here and check if we can be able to authenticate with the user identified.I connected using impacket-mssqlclient as shown below:
@@ -169,7 +175,8 @@ Since we have an Open MSSQL database, we can begin here and check if we can be a
 ```
 impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 ```
-![](/img/Pasted%20image%2020250105212138.png)
+
+![](/img/Pasted%20image%20250105212138.png)
 
 This allows us to interact with the database, execute queries, and potentially escalate privileges if misconfigurations exist. From here, I proceeded to enumerate available databases and check for any sensitive data that might aid in further exploitation.
 
@@ -201,6 +208,7 @@ Upon poking around the web root of the website-backup file there was an old-conf
 
 
 We can use this credentials to aattempt to login to the server through evil-winrm as indicated below;, Poked around, and guess what? The user flag was just chilling on the desktop. Easy win. Let’s keep this party going. 🚀💻 #Pwned
+
 ![](/img/Pasted%20image%20250213221643.png)
 
 ```python
