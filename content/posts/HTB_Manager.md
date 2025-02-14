@@ -177,16 +177,16 @@ Since we have an Open MSSQL database, we can begin here and check if we can be a
 impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 ```
 
-![](/img/Pasted%20image%20250105212138.png)
+![](/img/Pasted%20image%2020250105212138.png)
 
 This allows us to interact with the database, execute queries, and potentially escalate privileges if misconfigurations exist. From here, I proceeded to enumerate available databases and check for any sensitive data that might aid in further exploitation.
 
 Weaponing Command Shell:First things first—before getting fancy, let's go for the easy win. The immediate move is to try enabling xp_cmdshell to execute system commands through SQL. However, I noted we  don't have the necessary privileges to enable it just yet
 
-![](/img/Pasted%20image%20250213214108.png)
+![](/img/Pasted%20image%2020250213214108.png)
 
 
-![](/img/Pasted%20image%20250213215416.png)
+![](/img/Pasted%20image%2020250213215416.png)
 
 Since we’re lacking the required privileges, let’s pivot. The `xp_dirtree` function allows us to enumerate directories on the system. This can help us navigate the file system, locate interesting files, and even perform lateral movement if misconfigurations exist.
 
@@ -201,20 +201,20 @@ xp_dirtree is an extended stored procedure in Microsoft SQL Server that allows y
 
 Exploring directories and files on the server as shown below;
 
-![](/img/Pasted%20image%20250213220321.png)
+![](/img/Pasted%20image%2020250213220321.png)
 
 Downloading the Back up File
 
-![](/img/Pasted%20image%20250213220513.png)
+![](/img/Pasted%20image%2020250213220513.png)
 
 Upon poking around the web root of the website-backup file there was an old-config.xml with hardcoded creds for raven user and password inside it. Looks juicy. Definitely something to dig into. 
 
-![](/img/Pasted%20image%20250213220715.png)
+![](/img/Pasted%20image%2020250213220715.png)
 
 
 We can use this credentials to aattempt to login to the server through evil-winrm as indicated below;, Poked around, and guess what? The user flag was just chilling on the desktop. Easy win. Let’s keep this party going. 🚀💻 #Pwned
 
-![](/img/Pasted%20image%20250213221643.png)
+![](/img/Pasted%20image%2020250213221643.png)
 
 
 
