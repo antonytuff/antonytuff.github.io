@@ -194,10 +194,11 @@ This means we can read files & folders on the underlying OS & there are some int
 - `SQL2019` (database Server)
 - `Users` (domain users)
 
-Wait....
+Wait....What is xp_dirtree???
 xp_dirtree is an extended stored procedure in Microsoft SQL Server that allows you to list the contents of a directory on the file system. It is part of the xp_cmdshell family of extended stored procedures, which are used to execute operating system commands from within SQL Serv. With it we can be able to retrieve a list of files and subdirectories within a specified directory. 
 
-Exploring directories and files on the server as below
+Exploring directories and files on the server as shown below;
+
 ![](/img/Pasted%20image%20250213220321.png)
 
 Downloading the Back up File
