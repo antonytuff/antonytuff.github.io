@@ -166,6 +166,7 @@ operator:operator
 
 
 Based on the results we I go a hit valid username and password, Let's see where this users can take us to...
+
 ![](/img/Pasted%20image%2020250105202018.png)
 
 
@@ -183,6 +184,7 @@ This allows us to interact with the database, execute queries, and potentially e
 Weaponing Command Shell:First things first—before getting fancy, let's go for the easy win. The immediate move is to try enabling xp_cmdshell to execute system commands through SQL. However, I noted we  don't have the necessary privileges to enable it just yet
 
 ![](/img/Pasted%20image%20250213214108.png)
+
 
 ![](/img/Pasted%20image%20250213215416.png)
 
@@ -202,15 +204,19 @@ Exploring directories and files on the server as shown below;
 ![](/img/Pasted%20image%20250213220321.png)
 
 Downloading the Back up File
+
 ![](/img/Pasted%20image%20250213220513.png)
 
 Upon poking around the web root of the website-backup file there was an old-config.xml with hardcoded creds for raven user and password inside it. Looks juicy. Definitely something to dig into. 
+
 ![](/img/Pasted%20image%20250213220715.png)
 
 
 We can use this credentials to aattempt to login to the server through evil-winrm as indicated below;, Poked around, and guess what? The user flag was just chilling on the desktop. Easy win. Let’s keep this party going. 🚀💻 #Pwned
 
 ![](/img/Pasted%20image%20250213221643.png)
+
+
 
 ```python
 evil-winrm  -i manager.htb -u raven -p 'R4v3nBe5tD3veloP3r!123'   `
