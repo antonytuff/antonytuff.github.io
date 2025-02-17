@@ -16,10 +16,12 @@ categories: ["hackthebox","windows","boot2root","tech"]
 
 # Machine Overview
 
-## Information Gathering
+## 🔍 Information Gathering Phase
 As usual, I started with information gathering to detect open ports and identify services running on the target server. I ran an Nmap scan to probe the system for vulnerabilities and service banners.
+Based on the reseults of the Nmap , I noted the below key observations from Nmap:
 
 
+###### Scanning through Nmap
 - **53 (DNS):** Might be a domain controller. A prime target for domain enumeration.
 - **88 (Kerberos):** Active Directory? Kerberos authentication service is active. This confirms the presence of Active Directory and potential ticket or AD related attacks.
 - **135/445 (SMB):** File shares? We can dig out to see if there are any shares for any sensitive files or credentials.
@@ -49,10 +51,47 @@ Based on the results of the Nmap the below table maps out "Possible Attack Vecto
 
 
 
+###### RID Brute-Forcing – Sniffing Out Domain User
+Based on the results from Nmap’s  I decided to perform RID Brute-forcing using crackmapexec, aiming to enumerate user accounts on the Domain Controller (DC). This technique abuses the Relative Identifier (RID) sequencing, allowing us to query Security Identifiers (SIDs) and resolve them into usernames—often without authentication.<br> The results are as follows:<br>
 
-###### Scanning through Nmap
+```
+crackmapexec smb 10.10.11.35  -u 'guest'  -p '' --rid-brute | tee domainusersv1.txt
+```
+
+![](/img/Pasted%20image%2020241231095940.png)
+
+
+Hulla! We bagged a list of potential usernames. With this information , we can attempt AS-REP Roasting attack. This attack checks for accounts with pre-authentication disabled, letting us snag their hashed credentials for offline cracking.
+
+**AS-REP Roasting Attempts as shown below**- (Nothing Found)
+```
+impacket-GetNPUsers cicada.htb/ -dc-ip 10.10.11.35 -usersfile domainusers.txt -no-pass -outputfile asrep_hashes.txt
+```
+
+![](/img/Pasted%20image%2020241231131133.png)
+
+Even though this attempt didn’t yield a direct credential dump, the username list remains a valuable foothold for further att;acks. Next, We can explore another vector such enumerating services to identify potential misconfigurations. In my case we can check SMB;
+
 
 ## Enumeration
+###### SMB Enumeration
+Since port 445 (SMB) was open, we can check to see if there are any accessible SMB shares. Using SMB Client, I identified several interesting shares:
+- **ADMIN$**: Remote Admin share (usually for administrative tasks).
+- **C$**: Default administrative share for the C: drive.
+- **DEV**: Custom share (possibly containing files).
+- **HR**: Custom share (could be sensitive—requires exploration).
+- **IPC$**: Used for inter-process communication. 
+- **NETLOGON**: Scripts for logging in domain accounts.
+- **SYSVOL**: Policies and scripts for domain controllers
+
+![](/img/Pasted%20image%2020241230225850.png)
+
+From the results I noted two intereseting shares that seemed uniques:
+
+```
+- DEV: Custom share (possibly containing files).
+- HR: Custom share (Contains a file named Notice from HR.txt).
+```
 
 ## Information Gathering
 
