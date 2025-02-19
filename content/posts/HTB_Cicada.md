@@ -11,7 +11,7 @@ tags: ["Cicada-hackthebox","windows","hackthebox-walktrough","htb","privilege es
 categories: ["hackthebox","windows","boot2root","tech"]
 ---
 
-![You Are Here Sign](/img/manager.png)
+![You Are Here Sign](/img/Pasted%20image%2020250219235705.png)
 
 
 # Machine Overview
