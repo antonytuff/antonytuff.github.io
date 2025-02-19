@@ -18,7 +18,7 @@ categories: ["hackthebox","windows","boot2root","tech"]
 
 ## 🔍 Information Gathering Phase
 As usual, I started with information gathering to detect open ports and identify services running on the target server. I ran an Nmap scan to probe the system for vulnerabilities and service banners.
-Based on the reseults of the Nmap , I noted the below key observations from Nmap:
+Based on the results of the Nmap , I noted the below key observations from Nmap:
 
 
 ###### Scanning through Nmap
@@ -138,13 +138,36 @@ Q!3@Lp#M6b*7t*Vt
 ![](/img/Pasted%20image%2020241231114849.png)
 
 ### Intial FootHold
-Armed with Emily’s credentials, we can test for  WinRM authentication again—and this time, and boom we have a shell on the taget server.
+Armed with Emily’s credentials, we can test for  WinRM authentication again—and this time, we have a shell on the taget server.
+```
+evil-winrm -i 10.10.11.35 -u emily.oscars -p 'Q!3@Lp#M6b*7t*Vt'
+```
+From here we can grab our User Flag.
+![](/img/Pasted%20image%2020241231115131.png)
 
 ![](/img/Pasted%20image%2020250105163258.png)
-
 Weh, le's first grab some coffee, and then we can come and look into Privilege escalation stufff...
 
 ## Privilege Escalation
+As for the privilege escacation,especially in an Active Directory (AD) environment, I always find it  has a steep learning curve due to the numerous potential attack vectors.
+ My usual approach involves running BloodHound and WinPEAS to gather initial insights first and pottential areas that can be a guiding factor.
+
+
+📊 Situational Awareness
+To understand where we stand in terms of privileges, I first ran:
+```
+whoami /priv
+```
+This command lists the privileges assigned to the current user.If high-privilege rights like SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege are enabled, 
+they could be leveraged for privilege escalation techniques like Juicy Potato or Token Impersonation.
+
+
+Just some checks for situational awareness, and to understand where we are stiited.
+I run whoami /privilege
+
+What this doe 
+
+
 
 
 ### Persistence
