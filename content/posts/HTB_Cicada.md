@@ -171,16 +171,15 @@ To understand where we stand in terms of privileges, I first ran:
 whoami /all
 whoami /priv
 ```
-![](/img/Pasted%20image%2020250105163258.png)
+![](/img/Pasted%20image%2020241231115359.png)
 
 
 This command lists the privileges assigned to the current user.If high-privilege rights for instance SeImpersonatePrivilege or SeAssignPrimaryTokenPrivilege are enabled, 
 they could be leveraged for privilege escalation techniques like **Juicy Potato** or **Token Impersonation**.
 
-![](/img/Pasted%20image%2020250105163258.png)
+![](/img/Pasted%20image%2020250219223740.png)
 
-Based on the results, we see the box allowes the users to do some backup,writable changes, memory modofications  but what does this mean in terms of privilege escalation and potential escalation stufff.let's demistify furthr
-Here’s your content in table format:
+Based on the results, we see the box allowes the users to do some backup,writable changes, memory modofications  but what does this mean in terms of privilege escalation and potential escalation stufff.let's demistify further, the table below shows a breakdown.
 
 | **Privilege**                              | **Description**                                                                                                                                                                                                                                                     |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -189,7 +188,8 @@ Here’s your content in table format:
 | **SeChangeNotifyPrivilege**                | Enables file traversal even when explicit directory permissions are denied, potentially allowing access to restricted locations.                                                                                                                                    |
 | **SeIncreaseWorkingSetPrivilege**          | Used for modifying the memory limits of processes. Not commonly leveraged for privilege escalation.                                                                                                                                                                 |
 
-From alot of googling, numerous trial-and-error, rabit holes and chatgpt for the win,I saw this blog post(https://book.hacktricks.wiki/en/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens.html)  that seemed to have promising escalation route.
+From alot of googling, numerous trial-and-error, rabit holes and chatgpt for the win,I saw this blog post(https://book.hacktricks.wiki/en/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens.html)  that seemed to have promising escalation route. Follow the actual command as guided on the SeBackupPrivilege.
+It's not necessary to include it her, the steps are straight forward.
 
 Exploitation Steps
 Since  ‘SeBackupPrivilege’ is Enabled for our user ‘emily.oscars’: It means we can be able to read any file on the system, we can leverage it to extract critical files such as SAM and SYSTEM, which contain hashed passwords of local users, including the Administrator.
@@ -197,11 +197,11 @@ Since  ‘SeBackupPrivilege’ is Enabled for our user ‘emily.oscars’: It me
 In a nutshell,you may ask what going on here; From my understanding we are actually abusing SeBackupPrivilege to extract sensitive system files(SAM FILES, SYSTEM). Normally, users can’t access every file on a Windows machine, but the SeBackupPrivilege setting lets a user read everything on the system (even things they normally wouldn’t have access to).
 
 Saving SAM & SYSTEM files:
-To avoid detection or AMSI blocks by Windows, I first moved to the Temp folder(Temp is also writeable) to somewhere we can access, then saved a copy of the SAM and SYSTEM files there using the following commands:
+I first moved to the Temp folder(Temp is also writeable) to somewhere we can access, then saved a copy of the SAM and SYSTEM files there using the following commands:
 
 ```
-reg save hklm\sam c:\Temp\sam
-reg save hklm\system c:\Temp\system
+reg save hklm\sam c:\Users\emily.oscars.CICADA\Desktop\Temp\sam
+reg save hklm\system c:\Users\emily.oscars.CICADA\Desktop\Temp\system
 ```
 
 ![](/img/Pasted%20image%2020241231122509.png)
@@ -231,8 +231,20 @@ From the results we now have an Administrator’s password hash, which we can ev
 evil-winrm -i 10.10.11.35 -u Administrator -H 2b87e7c93a3e8a0ea4a581937016f341
 ```
 ![](/img/Pasted%20image%2020241231130245.png)
-Now, we are ROOT!
+
+Now, we are ROOT! and we can grab our roor flag.
 
 
 
 ## 📜 Conclusion
+### Key Takeways Include
+1. Recon and Enumeration is key
+2. Great learning experience in Active Directory exploitation. AD_Sytyle engagements that may be appliable in a network assesment.
+2. RID Brute-Forcing is Powerful – Even without credentials, user enumeration can reveal valuable targets.
+3. Privilege Escalation Opportunities Exist – Misconfigured privileges like SeBackupPrivilege can lead to full system compromise.
+4. Backup Privileges Can Be Dangerous – The ability to back up system files can be exploited to retrieve hashed passwords from critical Windows registry hives.
+
+
+# References & Suggested Reading:
+1. https://book.hacktricks.wiki/en/windows-hardening/windows-local-privilege-escalation/privilege-escalation-abusing-tokens.html
+2. https://notes.benheater.com/books/active-directory/page/dumping-hashes-without-mimikatz?ref=benheater.com
