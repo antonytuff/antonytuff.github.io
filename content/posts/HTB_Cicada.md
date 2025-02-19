@@ -75,7 +75,9 @@ Even though this attempt didn’t yield a direct credential dump, the username l
 
 ## Enumeration
 ###### SMB Enumeration
-Since port 445 (SMB) was open, we can check to see if there are any accessible SMB shares. Using SMB Client, I identified several interesting shares:
+Since port 445 (SMB) was open, we can check to see if there are any accessible SMB shares. In our cases the box had unahtenticated access which means of guest permissions are enabled we can be able to enumerate the shares in the drive.
+
+Using SMB Client, I identified several interesting shares, as follows:
 - **ADMIN$**: Remote Admin share (usually for administrative tasks).
 - **C$**: Default administrative share for the C: drive.
 - **DEV**: Custom share (possibly containing files).
@@ -86,12 +88,25 @@ Since port 445 (SMB) was open, we can check to see if there are any accessible S
 
 ![](/img/Pasted%20image%2020241230225850.png)
 
-From the results I noted two intereseting shares that seemed uniques:
+What pooped out from the shares was  intereseting shares that seemed uniques:
 
 ```
 - DEV: Custom share (possibly containing files).
 - HR: Custom share (Contains a file named Notice from HR.txt).
 ```
+###### 📝 Extracting Credentials from HR Share
+After accessing the HR Share, I found a file named **Notice from HR.txt**. Upon reviewing its contents, I discovered a message left for what seemed to be for a new hire which contained a password. Seems his credentials in hand, we can see if we can gain access initial foothold on the box or do authenticated scans on the SMB shares.Alternatively, Since we have a a list of valid usernames, we can attempt to perform password spraying on the box with the identified password.
+
+![](/img/Pasted%20image%2020241230230616.png)
+
+```
+Password: Cicada$M6Corpb*@Lp#nZp!8
+```
+
+From the password spray, I got a git and found that the user michael had aa amatpassword. ith this we can perform authenticated & privileged exploration of shares accessible to David or perform authenticated scans o the AD
+
+
+
 
 ## Information Gathering
 
