@@ -17,9 +17,9 @@ categories: ["hackthebox","windows","boot2root","tech"]
 # Machine Overview
 
 ## 🔍 Information Gathering Phase
-As usual, I started with information gathering to detect open ports and identify services running on the target server. I ran an Nmap scan to probe the system for vulnerabilities and service banners.
-Based on the results of the Nmap , I noted the below key observations from Nmap:
+As usual, I started with information gathering to detect open ports and identify services running on the target server. Fired up Nmap scan to probe the system for vulnerabilities and service banners.
 
+Based on the results of the Nmap , I noted the below key observations:
 
 ###### Scanning through Nmap
 - **53 (DNS):** Might be a domain controller. A prime target for domain enumeration.
@@ -52,7 +52,7 @@ Based on the results of the Nmap the below table maps out "Possible Attack Vecto
 
 
 ###### RID Brute-Forcing – Sniffing Out Domain User
-Based on the results from Nmap’s  I decided to perform RID Brute-forcing using crackmapexec, aiming to enumerate user accounts on the Domain Controller (DC). This technique abuses the Relative Identifier (RID) sequencing, allowing us to query Security Identifiers (SIDs) and resolve them into usernames—often without authentication.<br> The results are as follows:<br>
+My first go to was to perform RID Brute-forcing using crackmapexec, aiming to enumerate user accounts on the Domain Controller (DC). This technique abuses the Relative Identifier (RID) sequencing, allowing us to query Security Identifiers (SIDs) and resolve them into usernames—often without authentication.<br> The results are as follows:<br>
 
 ```
 crackmapexec smb 10.10.11.35  -u 'guest'  -p '' --rid-brute | tee domainusersv1.txt
@@ -75,7 +75,7 @@ Even though this attempt didn’t yield a direct credential dump, the username l
 
 ## Enumeration
 ###### SMB Enumeration
-Since port 445 (SMB) was open, we can check to see if there are any accessible SMB shares. In our cases the box had unahtenticated access which means of guest permissions are enabled we can be able to enumerate the shares in the drive.
+Since port 445 (SMB) was open, we can check to see if there are any accessible SMB shares. In our cases the box allowed unauthenticated access which means of guest permissions are enabled, and we can be able to enumerate the shares in the drive.
 
 Using SMB Client, I identified several interesting shares, as follows:
 - **ADMIN$**: Remote Admin share (usually for administrative tasks).
