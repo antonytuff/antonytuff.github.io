@@ -22,6 +22,7 @@ categories: ["pages"]
 ### What I'm reading {#what-i-m-reading}
 - Certified Red Team Operator
 - Adversary Emulation Plan
+- 
 
 
 ### What I'm watching {#what-i-m-watching}
@@ -33,11 +34,12 @@ categories: ["pages"]
 -
 
 ### What I'm enjoying {#what-i-m-enjoying}
-- Animation and studd.
+- Good Animation.
 
 ### Goal of This Blog {#Goal-of-Blog}
 - Improving Technical Concepts.
-- Document my  Hacking Journey
+- Document my  Hacking Journey and Learning Process
+- Use it as Reference guide 
 - Being like others- sounds good to have a blog
 
 
