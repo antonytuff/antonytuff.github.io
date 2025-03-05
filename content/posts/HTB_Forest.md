@@ -7,26 +7,26 @@ cover:
 image: /img/forest/manager.png   ins
 # alt: 'This is an alt tag for You Are Here picture'
 # caption: 'This is a caption for the image. You are not lost.'
-tags: ["Cicada-hackthebox","windows","hackthebox-walktrough","htb","privilege escacation"]
+tags: ["Forest-hackthebox","windows","hackthebox-walktrough","htb","privilege escacation"]
 categories: ["hackthebox","windows","boot2root","tech"]
 ---
 
-![You Are Here Sign](/img/Forest/Pasted%20image%2020250219235705.png)
-
-
-
-
 
 ![](/img/Forest/Pasted%20image%2020250301214344.png)
-# Machine Overview
-Well I first compromised this box back in 2020, and looking back, time really flies. However, I decided to revisit it due to its unique privilege escalation vector, particularly involving Discretionary Access Control Lists (DACL). I encountered a similar  technique in an active box I was working on, which made me want to take another closer look and some concepts *IppSec* was illustrating , beyond root. Also it's  in my checklist  in line with my preparation for the Certified Red Team Operator (CRTO) exam. And why not , I can do a blog post for it.
+#  Overview
+Well I first compromised this box back in 2020, and looking back, time really flies. However, I decided to revisit it due to its unique privilege escalation vector, particularly involving Discretionary Access Control Lists (DACL). 
 
-I'm gone take a slightly different approach.- Going a little  deeper with  Bloodhound enumeration, focusing on elements that are often overlooked during typical assessments or Domain recon. Understanding how to properly translate pieces  is critical for real-world engagements, and I find Bloodhound is a powerful tool for visualizing potential privilege escalation paths within an enterprise network.
+I recently encountered a similar  technique in an active box I was working on, which made me want to take a closer look at some of the concepts IppSec demonstrated—going beyond root. Also it's  in my checklist  in line with my preparation for the Certified Red Team Operator (CRTO) exam. And why not , I can do a blog post for it.
 
-It just reminds me of a common saying that attackers think in list and defenders think in paths. Bloodhound exactly illustrate this
+This time, I'm gone take a slightly different approach.- Going a little  deeper with  Bloodhound enumeration, focusing on elements that are often overlooked during typical assessments or Domain recon. Understanding how to properly translate pieces  is critical for real-world engagements.
 
-Another key objective is to experiment with Cobalt Strike(CS), particularly in stabilizing a shell, establishing persistence, and moving laterally within the an environment. Gaining hands-on experience with these techniques is essential for red teaming engagements.** In my future blogposts, We will explore memory evasion and Windows-based evasion techniques with CS,  so stay tuned!
-## Information Gathering
+
+Another key objective is to play around with Cobalt Strike(CS), particularly in stabilizing a shell, establishing persistence, and moving laterally within the an environment. Gaining hands-on experience with these techniques is essential for red teaming engagements.
+
+** In my future blogposts, We will explore memory evasion and Windows-based evasion techniques with CS,  so stay tuned!
+
+
+## 🔍 Information Gathering
 
 As always, the first step in any assessment is situational awareness, which starts at the ** humble terminal**. To identify potential entry points, I ran an Nmap scan using:
 ```
@@ -154,11 +154,16 @@ After running BloodHound-python or your preferred ingestor such as sharp hound, 
 
 So, how do we make sense of all this?
 
-###### BloodHound for Red Teaming & Blue Teaming
+##### BloodHound for Red Teaming & Blue Teaming
 Before diving into the analaysis, let’s briefly cover few concepts of  bloodHound  and it's applicability to both red teams and blue teams.
 
 Red Teams (Attackers) use BloodHound to map attack paths, identify privilege escalation vectors, and uncover hidden relationships between domain objects that could lead to Domain Admin (DA) access or some sort of privilege account.
 Blue Teams (Defenders) leverage BloodHound to analyze security gaps, detect misconfigurations, and implement remediation strategies to block potential attack paths before an attacker exploits them.
+
+
+It just reminds me of a common saying “Defenders think in lists. Attackers think in graphs"  
+
+
 
 ###### Key Questions to Ask When Analyzing BloodHound Data
 To effectively use BloodHound, always keep these guiding questions in mind:
@@ -205,6 +210,9 @@ Let’s break it down step by step:
 This means we can add our Membership to the “Exchange Windows Permissions” group
 ![](/img/Forest/Pasted%20image%2020250302170245.png)
 Let's put the attack path into action and go full offensive mode. We will chain multiple steps and completely own this network. 💀
+
+
+<br>
 **Step 1: Create a New User**  
 Since svc-alfresco is a member of Account Operators, we can create a new domain user(sploit). This is can somehow act us our  backdoor account.
 ```
@@ -225,7 +233,7 @@ Because DcSync allows us to pull password hashes from ANY user in Active Directo
 ## Privilege Escalation
 ##### **Cobalt Strike Perspective**
 After setting up the attack path, I decided to explore Cobalt Strike for performing DC Sync actions. This provides a different approach, offering flexibility in post-exploitation and lateral movement. Using Cobalt Strike, we can execute a DC Sync attack, extract hashes, and then pivot to pass-the-hash for DA access. It's actually  clean just for us to have a feel of a real-world adversary simulation experience.
-###### Cobalt Strike Concepts
+######  Concepts
 - ***Beacon*** – This is the payload used for executing commands post-exploitation.
 - ***Post-Exploitation & Lateral Movement*** – Cobalt Strike provides a stealthy interface for pivoting across the network, running commands asynchronously or in real time.
 
@@ -283,5 +291,16 @@ make_token Administrator htb.local 32693b11e6aa90eb43d32c72a07ceea6
 
 ![](/img/Forest/Pasted%20image%2020250303211749.png)
 
-## Conclusion
-### Key Takeways
+## 📜 Conclusion
+### Key Takeways Include
+1. BloodHound is a game-changer for mapping attack paths and privilege escalation routes in Active Directory.
+2. Abusing Active Directory ACLs and DCSync Abuse
+3. ASREPRoasting  attack
+4. Cobalt Strike Aggressor Scripts & Common Commands
+5. OPSEC concepts
+
+
+# References & Suggested Reading:
+https://rioasmara.com/2023/11/26/user-impersonation-with-cobaltstrike/
+https://github.com/fox-it/Invoke-ACLPwn
+https://github.com/dirkjanm/ldapdomaindump
